@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filtrace tabulky</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    label { margin-right: 10px; }
+    input, select { padding: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>Seznam produktů</h1>
+
+  <label for="countryFilter">Země:</label>
+  <select id="countryFilter">
+    <option value="">Všechny</option>
+    <option value="Česko">Česko</option>
+    <option value="Slovensko">Slovensko</option>
+    <option value="Německo">Německo</option>
+    <option value="Polsko">Polsko</option>
+    <option value="Rakousko">Rakousko</option>
+  </select>
+
+  <label for="priceFilter">Maximální cena/1mg CZK:</label>
+  <input type="number" id="priceFilter" placeholder="Např. 300">
+
+  <table id="productTable">
+    <thead>
+      <tr>
+        <th>Země</th>
+        <th>Postroj</th>
+        <th>Celkem účinné látky</th>
+        <th>Cena CZK</th>
+        <th>Cena/1mg CZK</th>
+        <th>Poznámka</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Česko</td><td>2.5</td><td>10 mg</td><td>4,790.00 Kč</td><td>479</td><td></td></tr>
+      <tr><td>Česko</td><td>5*5*5</td><td>60 mg</td><td>18,390.00 Kč</td><td>307</td><td>cena v setu za 3 postroje</td></tr>
+      <tr><td>Česko</td><td>7.5</td><td>30 mg</td><td>8,790.00 Kč</td><td>293</td><td></td></tr>
+      <tr><td>Česko</td><td>11*10*10</td><td>120 mg</td><td>25,490.00 Kč</td><td>212</td><td>cena v setu za 3 postroje</td></tr>
+      <tr><td>Česko</td><td>12.5</td><td>50 mg</td><td>Zatím není v nabídce</td><td></td><td></td></tr>
+      <tr><td>Česko</td><td>15</td><td>60 mg</td><td></td><td></td><td></td></tr>
+      <tr><td>Slovensko</td><td>2.5</td><td>10 mg</td><td>4,513.50 Kč</td><td>451</td><td></td></tr>
+      <tr><td>Slovensko</td><td>5*5*5</td><td>60 mg</td><td>18,105.00 Kč</td><td>302</td><td>cena v setu za 3 postroje</td></tr>
+      <tr><td>Slovensko</td><td>7.5</td><td>30 mg</td><td>8,542.50 Kč</td><td>285</td><td></td></tr>
+      <tr><td>Slovensko</td><td>10*10*10</td><td>120 mg</td><td>25,270.50 Kč</td><td>211</td><td>cena v setu za 3 postroje</td></tr>
+      <tr><td>Německo</td><td>2.5</td><td>10 mg</td><td>5,253.00 Kč</td><td>525</td><td></td></tr>
+      <tr><td>Německo</td><td>5</td><td>20 mg</td><td>7,063.50 Kč</td><td>353</td><td></td></tr>
+      <tr><td>Německo</td><td>7.5</td><td>30 mg</td><td>9,766.50 Kč</td><td>326</td><td></td></tr>
+      <tr><td>Polsko</td><td>2.5</td><td>10 mg</td><td>7,080.00 Kč</td><td>708</td><td></td></tr>
+      <tr><td>Polsko</td><td>7.5</td><td>30 mg</td><td>9,941.50 Kč</td><td>331</td><td></td></tr>
+      <tr><td>Rakousko</td><td>7.5</td><td>30 mg</td><td>11,883.00 Kč</td><td>396</td><td></td></tr>
+      <tr><td>Rakousko</td><td>10</td><td>40 mg</td><td>11,883.00 Kč</td><td>297</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    document.getElementById('countryFilter').addEventListener('change', filterTable);
+    document.getElementById('priceFilter').addEventListener('input', filterTable);
+
+    function filterTable() {
+      let country = document.getElementById('countryFilter').value;
+      let maxPrice = parseFloat(document.getElementById('priceFilter').value);
+      let rows = document.querySelectorAll('#productTable tbody tr');
+      
+      rows.forEach(row => {
+        let countryCell = row.cells[0].textContent;
+        let priceCell = parseFloat(row.cells[4].textContent);
+        let show = true;
+        
+        if (country && country !== countryCell) show = false;
+        if (!isNaN(maxPrice) && priceCell > maxPrice) show = false;
+        
+        row.style.display = show ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
