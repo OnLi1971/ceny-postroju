@@ -1,0 +1,497 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceny postrojů v Evropě - interaktivní srovnání</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --new-color: #ff6b6b;
+        }
+        
+        /* ... (zbytek CSS zůstává stejný) ... */
+
+        .new-item {
+            background-color: rgba(255, 107, 107, 0.1);
+            position: relative;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--new-color);
+            color: white;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+        }
+
+        .new-note {
+            color: var(--new-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1><i class="fas fa-euro-sign"></i> Ceny postrojů v evropských zemích</h1>
+    
+    <div class="stats">
+        <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+            <i class="fas fa-globe-europe"></i>
+            <div class="stat-value" id="country-count">5</div>
+            <div class="stat-label">Zemí v porovnání</div>
+        </div>
+        <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+            <i class="fas fa-list-ol"></i>
+            <div class="stat-value" id="product-count">0</div>
+            <div class="stat-label">Dostupných produktů</div>
+        </div>
+        <div class="stat-card fade-in" style="animation-delay: 0.3s;">
+            <i class="fas fa-trophy"></i>
+            <div class="stat-value" id="best-price">0 Kč</div>
+            <div class="stat-label">Nejlepší cena / 1mg</div>
+        </div>
+        <div class="stat-card fade-in" style="animation-delay: 0.4s;">
+            <i class="fas fa-percentage"></i>
+            <div class="stat-value" id="price-diff">0%</div>
+            <div class="stat-label">Rozdíl cen ČR vs EU</div>
+        </div>
+    </div>
+    
+    <div class="controls fade-in" style="animation-delay: 0.5s;">
+        <div class="control-group">
+            <label for="country-filter"><i class="fas fa-filter"></i> Filtrovat zemi:</label>
+            <select id="country-filter">
+                <option value="all">Všechny země</option>
+                <option value="Cesko">Česko</option>
+                <option value="Slovensko">Slovensko</option>
+                <option value="Nemecko">Německo</option>
+                <option value="Polsko">Polsko</option>
+                <option value="Rakousko">Rakousko</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="harness-filter"><i class="fas fa-vest"></i> Filtrovat postroj:</label>
+            <select id="harness-filter">
+                <option value="all">Všechny typy</option>
+                <option value="2.5">2.5</option>
+                <option value="5">5</option>
+                <option value="7.5">7.5</option>
+                <option value="10">10</option>
+                <option value="12.5">12.5</option>
+                <option value="15">15</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="sort-by"><i class="fas fa-sort-amount-down"></i> Seřadit podle:</label>
+            <select id="sort-by">
+                <option value="default">Výchozí řazení</option>
+                <option value="price-asc">Nejlevnější (vše)</option>
+                <option value="price-desc">Nejdražší (vše)</option>
+                <option value="country-price">Nejlevnější v zemi</option>
+                <option value="substance-asc">Podle účinné látky (vzestupně)</option>
+                <option value="substance-desc">Podle účinné látky (sestupně)</option>
+            </select>
+        </div>
+        <button id="apply-btn" class="pulse">
+            <i class="fas fa-check"></i> Aplikovat
+        </button>
+    </div>
+    
+    <div class="toggle-chart fade-in" style="animation-delay: 0.6s;">
+        <button class="toggle-chart-btn" id="toggle-chart-btn">
+            <i class="fas fa-chart-bar"></i> Zobrazit grafické srovnání
+        </button>
+    </div>
+    
+    <div class="chart-container" id="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+    
+    <div class="table-container fade-in" style="animation-delay: 0.7s;">
+        <table id="price-table">
+            <thead>
+                <tr>
+                    <th data-sort="country">Země <i class="fas fa-sort"></i></th>
+                    <th data-sort="harness">Postroj <i class="fas fa-sort"></i></th>
+                    <th data-sort="substance">Účinné látky <i class="fas fa-sort"></i></th>
+                    <th data-sort="original-price">Cena orig. <i class="fas fa-sort"></i></th>
+                    <th data-sort="czk-price">Cena CZK <i class="fas fa-sort"></i></th>
+                    <th data-sort="unit-price">Cena/1mg CZK <i class="fas fa-sort"></i></th>
+                    <th>Poznámka</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="fade-in" style="animation-delay: 0.8s;">
+        <p><i class="fas fa-info-circle"></i> Kurzová konverze: 1 EUR = 25.50 CZK, 1 PLN = 5.90 CZK | Poslední aktualizace: září 2024</p>
+        <p><i class="fas fa-sync-alt"></i> Data se aktualizují automaticky při změně filtrů</p>
+    </footer>
+
+    <script>
+        // Definice kurzů měn pro přepočty
+        const EUR_TO_CZK = 25.50;
+        const PLN_TO_CZK = 5.90;
+
+        // Funkce pro přepočet ceny z EUR na CZK
+        function convertEurToCzk(eurPrice) {
+            if (typeof eurPrice === 'string') {
+                eurPrice = parseFloat(eurPrice.replace(',', '.').replace(/[^0-9.-]+/g,""));
+            }
+            return (eurPrice * EUR_TO_CZK).toFixed(2);
+        }
+
+        // Funkce pro přepočet ceny z PLN na CZK
+        function convertPlnToCzk(plnPrice) {
+            if (typeof plnPrice === 'string') {
+                plnPrice = parseFloat(plnPrice.replace(',', '.').replace(/[^0-9.-]+/g,""));
+            }
+            return (plnPrice * PLN_TO_CZK).toFixed(2);
+        }
+
+        // Data tabulky
+        const tableData = [
+            // Česko
+            { country: "Cesko", harness: "2.5", substance: "10 mg", originalPrice: "4,790.00 Kč", czkPrice: "4,790.00 Kč", unitPrice: 479, note: "" },
+            { country: "Cesko", harness: "5", substance: "20 mg", originalPrice: "7,063.50 Kč", czkPrice: "7,063.50 Kč", unitPrice: 353, note: "NEW", isNew: true },
+            { country: "Cesko", harness: "5*5*5", substance: "60 mg", originalPrice: "18,390.00 Kč", czkPrice: "18,390.00 Kč", unitPrice: 307, note: "cena v setu za 3 postroje" },
+            { country: "Cesko", harness: "7.5", substance: "30 mg", originalPrice: "8,790.00 Kč", czkPrice: "8,790.00 Kč", unitPrice: 293, note: "" },
+            { country: "Cesko", harness: "10", substance: "40 mg", originalPrice: "9,766.50 Kč", czkPrice: "9,766.50 Kč", unitPrice: 244, note: "NEW", isNew: true },
+            { country: "Cesko", harness: "10*10*10", substance: "120 mg", originalPrice: "25,490.00 Kč", czkPrice: "25,490.00 Kč", unitPrice: 212, note: "cena v setu za 3 postroje" },
+            { country: "Cesko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, note: "" },
+            { country: "Cesko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
+            
+            // ... (zbytek dat zůstává stejný, jen upravte poznámky podle potřeby) ...
+        ];
+
+        // Naplnění tabulky daty
+        function renderTable(data) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            let currentCountry = '';
+            
+            // Najdeme nejnižší cenu v datech (pro zvýraznění)
+            const validPrices = data.filter(item => item.unitPrice !== null).map(item => item.unitPrice);
+            const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : null;
+            
+            // Počet produktů pro statistiky
+            const productCount = data.filter(item => item.unitPrice !== null).length;
+            document.getElementById('product-count').textContent = productCount;
+            
+            // Nejlepší cena pro statistiky
+            if (minPrice !== null) {
+                document.getElementById('best-price').textContent = minPrice + ' Kč';
+            }
+            
+            data.forEach((item, index) => {
+                // Skupinový řádek pro zemi
+                if (item.country !== currentCountry) {
+                    currentCountry = item.country;
+                    const countryRow = document.createElement('tr');
+                    countryRow.className = 'country';
+                    countryRow.innerHTML = `
+                        <td colspan="7">
+                            <i class="fas fa-flag"></i> ${currentCountry}
+                        </td>
+                    `;
+                    tableBody.appendChild(countryRow);
+                }
+                
+                // Řádek s daty
+                const row = document.createElement('tr');
+                
+                // Určení třídy pro cenu
+                let priceClass = '';
+                if (item.unitPrice !== null) {
+                    if (item.unitPrice === minPrice) {
+                        priceClass = 'best-price';
+                        row.classList.add('best-price-row');
+                    } else if (item.unitPrice > 500) {
+                        priceClass = 'price-very-high';
+                    } else if (item.unitPrice > 350) {
+                        priceClass = 'price-high';
+                    } else if (item.unitPrice > 250) {
+                        priceClass = 'price-medium';
+                    } else {
+                        priceClass = 'price-low';
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td>${item.country}</td>
+                    <td>${item.harness}</td>
+                    <td>${item.substance}</td>
+                    <td>${item.originalPrice}</td>
+                    <td>${item.czkPrice}</td>
+                    <td class="${priceClass}">${item.unitPrice !== null ? item.unitPrice + ' Kč' : '-'}</td>
+                    <td class="note">${item.note || '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Aktualizace statistiky rozdílu cen ČR vs EU
+            updatePriceDifferenceStats(data);
+            
+            // Aktualizace grafu, pokud je zobrazen
+            if (document.getElementById('chart-container').style.display === 'block') {
+                renderChart(data);
+            }
+        }
+
+        // Aktualizace statistiky rozdílu cen ČR vs EU
+        function updatePriceDifferenceStats(data) {
+            const czechPrices = tableData.filter(item => 
+                item.country === "Cesko" && item.unitPrice !== null
+            ).map(item => item.unitPrice);
+            
+            const otherPrices = tableData.filter(item => 
+                item.country !== "Cesko" && item.unitPrice !== null
+            ).map(item => item.unitPrice);
+            
+            if (czechPrices.length > 0 && otherPrices.length > 0) {
+                const avgCzechPrice = czechPrices.reduce((a, b) => a + b, 0) / czechPrices.length;
+                const avgOtherPrice = otherPrices.reduce((a, b) => a + b, 0) / otherPrices.length;
+                const difference = ((avgCzechPrice - avgOtherPrice) / avgOtherPrice * 100).toFixed(1);
+                
+                const diffElement = document.getElementById('price-diff');
+                diffElement.textContent = Math.abs(difference) + '%';
+                
+                if (difference > 0) {
+                    diffElement.style.color = 'var(--danger)';
+                } else if (difference < 0) {
+                    diffElement.style.color = 'var(--success)';
+                } else {
+                    diffElement.style.color = 'var(--gray)';
+                }
+            }
+        }
+
+        // Vykreslení grafu
+        function renderChart(data) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // Seskupte data podle země a typu postroje
+            const groupedData = {};
+            data.forEach(item => {
+                if (item.unitPrice !== null) {
+                    if (!groupedData[item.country]) {
+                        groupedData[item.country] = {};
+                    };
+            data.forEach(item => {
+                if (item.unitPrice !== null) {
+                    if (!groupedData[item.country]) {
+                        groupedData[item.country] = {};
+                    }
+                    groupedData[item.country][item.harness] = item.unitPrice;
+                }
+            });
+            
+            // Získat všechny unikátní typy postrojů
+            const allHarnesses = [...new Set(data.map(item => item.harness))].sort((a, b) => {
+                return parseFloat(a.replace('*', '')) - parseFloat(b.replace('*', ''));
+            });
+            
+            // Příprava dat pro graf
+            const countries = Object.keys(groupedData);
+            const datasets = countries.map(country => {
+                const prices = allHarnesses.map(harness => {
+                    return groupedData[country][harness] || null;
+                });
+                
+                return {
+                    label: country,
+                    data: prices,
+                    backgroundColor: getCountryColor(country),
+                    borderColor: getCountryColor(country),
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: false
+                };
+            });
+            
+            // Zničení předchozího grafu, pokud existuje
+            if (window.priceChart) {
+                window.priceChart.destroy();
+            }
+            
+            // Vytvoření nového grafu
+            window.priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: allHarnesses,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Srovnání cen postrojů v evropských zemích (CZK/mg)',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' Kč/mg';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Cena za 1mg (Kč)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Typ postroje'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Funkce pro přiřazení barvy zemi
+        function getCountryColor(country) {
+            const colors = {
+                'Cesko': '#4361ee',
+                'Slovensko': '#3f37c9',
+                'Nemecko': '#4895ef',
+                'Polsko': '#4cc9f0',
+                'Rakousko': '#f72585'
+            };
+            return colors[country] || '#6c757d';
+        }
+
+        // Filtrování a řazení dat
+        function filterAndSortData() {
+            const countryFilter = document.getElementById('country-filter').value;
+            const harnessFilter = document.getElementById('harness-filter').value;
+            const sortBy = document.getElementById('sort-by').value;
+            
+            let filteredData = [...tableData];
+            
+            // Filtrování podle země
+            if (countryFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.country === countryFilter);
+            }
+            
+            // Filtrování podle typu postroje
+            if (harnessFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.harness.includes(harnessFilter));
+            }
+            
+            // Řazení dat
+            if (sortBy === 'price-asc') {
+                filteredData.sort((a, b) => {
+                    if (a.unitPrice === null) return 1;
+                    if (b.unitPrice === null) return -1;
+                    return a.unitPrice - b.unitPrice;
+                });
+            } else if (sortBy === 'price-desc') {
+                filteredData.sort((a, b) => {
+                    if (a.unitPrice === null) return 1;
+                    if (b.unitPrice === null) return -1;
+                    return b.unitPrice - a.unitPrice;
+                });
+            } else if (sortBy === 'country-price') {
+                const countryMinPrices = {};
+                tableData.forEach(item => {
+                    if (item.unitPrice !== null) {
+                        if (!countryMinPrices[item.country] || item.unitPrice < countryMinPrices[item.country].unitPrice) {
+                            countryMinPrices[item.country] = item;
+                        }
+                    }
+                });
+                filteredData = Object.values(countryMinPrices);
+                filteredData.sort((a, b) => a.unitPrice - b.unitPrice);
+            } else if (sortBy === 'substance-asc') {
+                filteredData.sort((a, b) => {
+                    const aSubstance = parseFloat(a.substance);
+                    const bSubstance = parseFloat(b.substance);
+                    return aSubstance - bSubstance;
+                });
+            } else if (sortBy === 'substance-desc') {
+                filteredData.sort((a, b) => {
+                    const aSubstance = parseFloat(a.substance);
+                    const bSubstance = parseFloat(b.substance);
+                    return bSubstance - aSubstance;
+                });
+            }
+            
+            renderTable(filteredData);
+        }
+
+        // Inicializace stránky
+        document.addEventListener('DOMContentLoaded', () => {
+            // Naplnění tabulky výchozími daty
+            renderTable(tableData);
+            
+            // Přidání event listenerů
+            document.getElementById('apply-btn').addEventListener('click', filterAndSortData);
+            
+            // Přepínání grafu
+            document.getElementById('toggle-chart-btn').addEventListener('click', function() {
+                const chartContainer = document.getElementById('chart-container');
+                if (chartContainer.style.display === 'none' || !chartContainer.style.display) {
+                    chartContainer.style.display = 'block';
+                    this.innerHTML = '<i class="fas fa-chart-bar"></i> Skrýt grafické srovnání';
+                    renderChart(tableData);
+                } else {
+                    chartContainer.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-chart-bar"></i> Zobrazit grafické srovnání';
+                }
+            });
+            
+            // Řazení při kliknutí na záhlaví tabulky
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', function() {
+                    const sortBy = this.getAttribute('data-sort');
+                    const sortSelect = document.getElementById('sort-by');
+                    
+                    // Nastavíme správnou hodnotu v selectu
+                    if (sortBy === 'unit-price') {
+                        sortSelect.value = 'price-asc';
+                    } else {
+                        sortSelect.value = 'default';
+                    }
+                    
+                    // Spustíme filtrování a řazení
+                    filterAndSortData();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
