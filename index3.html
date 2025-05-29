@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceny postrojů v Evropě - interaktivní srovnání</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --new-color: #ff6b6b;
+        }
+        
+        /* ... (zbytek CSS zůstává stejný) ... */
+
+        .new-item {
+            background-color: rgba(255, 107, 107, 0.1);
+            position: relative;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--new-color);
+            color: white;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+        }
+
+        .new-note {
+            color: var(--new-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- ... (zbytek HTML zůstává stejný) ... -->
+
+    <script>
+        // Definice kurzů měn pro přepočty
+        const EUR_TO_CZK = 25.50;
+        const PLN_TO_CZK = 5.90;
+
+        // Funkce pro přepočet ceny z EUR na CZK
+        function convertEurToCzk(eurPrice) {
+            if (typeof eurPrice === 'string') {
+                eurPrice = parseFloat(eurPrice.replace(',', '.').replace(/[^0-9.-]+/g,""));
+            }
+            return (eurPrice * EUR_TO_CZK).toFixed(2);
+        }
+
+        // Funkce pro přepočet ceny z PLN na CZK
+        function convertPlnToCzk(plnPrice) {
+            if (typeof plnPrice === 'string') {
+                plnPrice = parseFloat(plnPrice.replace(',', '.').replace(/[^0-9.-]+/g,""));
+            }
+            return (plnPrice * PLN_TO_CZK).toFixed(2);
+        }
+
+        // Data tabulky s upravenými poznámkami
+        const tableData = [
+            // Česko
+            { country: "Cesko", harness: "2.5", substance: "10 mg", originalPrice: "4,790.00 Kč", czkPrice: "4,790.00 Kč", unitPrice: 479, note: "" },
+            { country: "Cesko", harness: "5", substance: "20 mg", originalPrice: "7,063.50 Kč", czkPrice: "7,063.50 Kč", unitPrice: 353, note: "NEW", isNew: true },
+            { country: "Cesko", harness: "5*5*5", substance: "60 mg", originalPrice: "18,390.00 Kč", czkPrice: "18,390.00 Kč", unitPrice: 307, note: "cena v setu za 3 postroje" },
+            { country: "Cesko", harness: "7.5", substance: "30 mg", originalPrice: "8,790.00 Kč", czkPrice: "8,790.00 Kč", unitPrice: 293, note: "" },
+            { country: "Cesko", harness: "10", substance: "40 mg", originalPrice: "9,766.50 Kč", czkPrice: "9,766.50 Kč", unitPrice: 244, note: "NEW", isNew: true },
+            { country: "Cesko", harness: "10*10*10", substance: "120 mg", originalPrice: "25,490.00 Kč", czkPrice: "25,490.00 Kč", unitPrice: 212, note: "cena v setu za 3 postroje" },
+            { country: "Cesko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, note: "" },
+            { country: "Cesko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
+            
+            // ... (zbytek dat zůstává stejný, jen upravte poznámky podle potřeby) ...
+        ];
+
+        // Naplnění tabulky daty
+        function renderTable(data) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            let currentCountry = '';
+            
+            // Najdeme nejnižší cenu v datech (pro zvýraznění)
+            const validPrices = data.filter(item => item.unitPrice !== null).map(item => item.unitPrice);
+            const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : null;
+            
+            // Počet produktů pro statistiky
+            const productCount = data.filter(item => item.unitPrice !== null).length;
+            document.getElementById('product-count').textContent = productCount;
+            
+            // Nejlepší cena pro statistiky
+            if (minPrice !== null) {
+                document.getElementById('best-price').textContent = minPrice + ' Kč';
+            }
+            
+            data.forEach((item, index) => {
+                // Skupinový řádek pro zemi
+                if (item.country !== currentCountry) {
+                    currentCountry = item.country;
+                    const countryRow = document.createElement('tr');
+                    countryRow.className = 'country';
+                    countryRow.innerHTML = `
+                        <td colspan="7">
+                            <i class="fas fa-flag"></i> ${currentCountry}
+                        </td>
+                    `;
+                    tableBody.appendChild(countryRow);
+                }
+                
+                // Řádek s daty
+                const row = document.createElement('tr');
+                if (item.isNew) {
+                    row.classList.add('new-item');
+                }
+                
+                // Určení třídy pro cenu
+                let priceClass = '';
+                if (item.unitPrice !== null) {
+                    if (item.unitPrice === minPrice) {
+                        priceClass = 'best-price';
+                        row.classList.add('best-price-row');
+                    } else if (item.unitPrice > 500) {
+                        priceClass = 'price-very-high';
+                    } else if (item.unitPrice > 350) {
+                        priceClass = 'price-high';
+                    } else if (item.unitPrice > 250) {
+                        priceClass = 'price-medium';
+                    } else {
+                        priceClass = 'price-low';
+                    }
+                }
+                
+                // Určení třídy pro poznámku
+                const noteClass = item.note === "NEW" ? 'new-note' : 'note';
+                
+                row.innerHTML = `
+                    <td>${item.country}</td>
+                    <td>${item.harness}${item.isNew ? '<span class="new-badge">NEW</span>' : ''}</td>
+                    <td>${item.substance}</td>
+                    <td>${item.originalPrice}</td>
+                    <td>${item.czkPrice}</td>
+                    <td class="${priceClass}">${item.unitPrice !== null ? item.unitPrice + ' Kč' : '-'}</td>
+                    <td class="${noteClass}">${item.note || '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Aktualizace statistiky rozdílu cen ČR vs EU
+            updatePriceDifferenceStats(data);
+            
+            // Aktualizace grafu, pokud je zobrazen
+            if (document.getElementById('chart-container').style.display === 'block') {
+                renderChart(data);
+            }
+        }
+
+        // Oprava funkce pro grafické srovnání
+        function renderChart(data) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // Seskupte data podle země a typu postroje
+            const groupedData = {};
+            data.forEach(item => {
+                if (item.unitPrice !== null) {
+                    if (!groupedData[item.country]) {
+                        groupedData[item.country] = {};
+                    }
+                    // Odstranění hvězdiček z hodnot postroje pro graf
+                    const harnessKey = item.harness.replace(/\*/g, '');
+                    groupedData[item.country][harnessKey] = item.unitPrice;
+                }
+            });
+            
+            // Získat všechny unikátní typy postrojů (bez duplicit)
+            const allHarnesses = [...new Set(data.map(item => item.harness.replace(/\*/g, '')))].sort((a, b) => {
+                return parseFloat(a) - parseFloat(b);
+            });
+            
+            // Příprava dat pro graf
+            const countries = Object.keys(groupedData);
+            const datasets = countries.map(country => {
+                const prices = allHarnesses.map(harness => {
+                    return groupedData[country][harness] || null;
+                });
+                
+                return {
+                    label: country,
+                    data: prices,
+                    backgroundColor: getCountryColor(country),
+                    borderColor: getCountryColor(country),
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: false
+                };
+            });
+            
+            // Zničení předchozího grafu, pokud existuje
+            if (window.priceChart) {
+                window.priceChart.destroy();
+            }
+            
+            // Vytvoření nového grafu
+            window.priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: allHarnesses,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Srovnání cen postrojů v evropských zemích (CZK/mg)',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' Kč/mg';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Cena za 1mg (Kč)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Typ postroje'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // ... (zbytek JavaScriptu zůstává stejný) ...
+
+        // Inicializace stránky
+        document.addEventListener('DOMContentLoaded', () => {
+            // Naplnění tabulky výchozími daty
+            renderTable(tableData);
+            
+            // Přidání event listenerů
+            document.getElementById('apply-btn').addEventListener('click', filterAndSortData);
+            
+            // Přepínání grafu - opravená funkce
+            document.getElementById('toggle-chart-btn').addEventListener('click', function() {
+                const chartContainer = document.getElementById('chart-container');
+                if (chartContainer.style.display === 'none' || !chartContainer.style.display) {
+                    chartContainer.style.display = 'block';
+                    this.innerHTML = '<i class="fas fa-chart-bar"></i> Skrýt grafické srovnání';
+                    renderChart(tableData);
+                } else {
+                    chartContainer.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-chart-bar"></i> Zobrazit grafické srovnání';
+                }
+            });
+            
+            // ... (zbytek inicializace zůstává stejný) ...
+        });
+    </script>
+</body>
+</html>
