@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ceny per v Evropě - interaktivní srovnání</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=20250605_1430">
     <style>
         :root {
             --primary: #4361ee;
@@ -25,7 +25,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: var(--dark);
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
             background-color: var(--light);
@@ -144,19 +144,20 @@
             border-collapse: separate;
             border-spacing: 0;
             margin: 0;
-            min-width: 800px;
+            min-width: 1000px;
         }
         
         th {
             background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
             color: white;
             font-weight: 600;
-            padding: 15px;
+            padding: 15px 8px;
             text-align: left;
             cursor: pointer;
             position: sticky;
             top: 0;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
         
         th:first-child {
@@ -182,11 +183,12 @@
         }
         
         td {
-            padding: 12px 15px;
+            padding: 12px 8px;
             border-bottom: 1px solid var(--light-gray);
             vertical-align: middle;
             transition: all 0.3s;
             position: relative;
+            font-size: 0.9rem;
         }
         
         tr:nth-child(even) {
@@ -508,6 +510,25 @@
             .stat-card {
                 min-width: 100%;
             }
+
+            td {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+
+            th {
+                padding: 12px 4px;
+                font-size: 0.8rem;
+            }
+
+            .link-container {
+                flex-direction: column;
+            }
+
+            .help-link {
+                width: 100%;
+                justify-content: center;
+            }
         }
         
         /* Animace */
@@ -561,8 +582,8 @@
         <div class="control-group">
             <label for="country-filter"><i class="fas fa-filter"></i> Filtrovat zemi:</label>
             <select id="country-filter">
-                <option value="all">Všechny země</option>
-                <option value="Česko" selected>Česko</option>
+                <option value="all" selected>Všechny země</option>
+                <option value="Česko">Česko</option>
                 <option value="Slovensko">Slovensko</option>
                 <option value="Německo">Německo</option>
                 <option value="Polsko">Polsko</option>
@@ -616,6 +637,7 @@
                     <th data-sort="original-price">Cena orig. <i class="fas fa-sort"></i></th>
                     <th data-sort="czk-price">Cena CZK <i class="fas fa-sort"></i></th>
                     <th data-sort="unit-price">Cena/1mg CZK <i class="fas fa-sort"></i></th>
+                    <th data-sort="unit-price-gold">Cena/1mg včetně zlaté dávky <i class="fas fa-sort"></i></th>
                     <th>Poznámka</th>
                 </tr>
             </thead>
@@ -625,15 +647,19 @@
     </div>
 
     <div class="links-section fade-in" style="animation-delay: 0.9s;">
-        <h3><i class="fas fa-tools"></i> Užitečné kalkulačky</h3>
+        <h3><i class="fas fa-tools"></i> Užitečné kalkulačky a nástroje</h3>
         <div class="link-container">
-            <a href="https://github.com/onli1971/kalkulacka-kliku" class="help-link" target="_blank">
+            <a href="https://onli1971.github.io/kalkulacka-kliku/" class="help-link" target="_blank">
                 <i class="fas fa-calculator"></i>
-                Chceš pomoc s kalkulací kliků pera? Klikni sem
+                Kalkulačka kliků pera
             </a>
-            <a href="https://github.com/onli1971/kalkulacka-davek" class="help-link" target="_blank">
+            <a href="https://onli1971.github.io/kalkulacka-davek/" class="help-link" target="_blank">
                 <i class="fas fa-syringe"></i>
-                Chceš pomoct se zlatou dávkou? Klikni sem
+                Kalkulačka zlaté dávky
+            </a>
+            <a href="https://ylv4f498kbphj8gezeibm9kh.macaly.dev/" class="help-link" style="background: linear-gradient(135deg, #4cc9f0, #4361ee);">
+                <i class="fas fa-chart-line"></i>
+                Srovnání nákladů M 5mg
             </a>
         </div>
     </div>
@@ -664,51 +690,52 @@
             return (plnPrice * PLN_TO_CZK).toFixed(2);
         }
 
-        // Data tabulky
+        // Data tabulky - UPRAVENO: odebrány hodnoty za lomítkem v závorce
         const tableData = [
             // Česko
-            { country: "Česko", harness: "2.5", substance: "10 mg", originalPrice: "4,790.00 Kč", czkPrice: "4,790.00 Kč", unitPrice: 479, note: "" },
-            { country: "Česko", harness: "5", substance: "20 mg", originalPrice: "7,063.00 Kč", czkPrice: "7,063.00 Kč", unitPrice: 353, note: "NEW", isNew: true },
-            { country: "Česko", harness: "5*5*5", substance: "60 mg", originalPrice: "18,390.00 Kč", czkPrice: "18,390.00 Kč", unitPrice: 307, note: "cena v setu za 3 pera" },
-            { country: "Česko", harness: "7.5", substance: "30 mg", originalPrice: "8,790.00 Kč", czkPrice: "8,790.00 Kč", unitPrice: 293, note: "" },
-            { country: "Česko", harness: "10", substance: "40 mg", originalPrice: "9,766.00 Kč", czkPrice: "9,766.00 Kč", unitPrice: 244, note: "NEW", isNew: true },
-            { country: "Česko", harness: "10*10*10", substance: "120 mg", originalPrice: "25,490.00 Kč", czkPrice: "25,490.00 Kč", unitPrice: 212, note: "cena v setu za 3 pera" },
-            { country: "Česko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Česko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
+            { country: "Česko", harness: "2.5", substance: "10 mg", originalPrice: "4,790.00 Kč", czkPrice: "4,790.00 Kč", unitPrice: 479, unitPriceGold: 319, note: "" },
+            { country: "Česko", harness: "5", substance: "20 mg", originalPrice: "6,130.00 Kč", czkPrice: "6,130.00 Kč", unitPrice: 307, unitPriceGold: 204, note: "" },
+            { country: "Česko", harness: "5*5*5", substance: "60 mg", originalPrice: "18,390.00 Kč", czkPrice: "18,390.00 Kč", unitPrice: 307, unitPriceGold: 204, note: "cena v setu za 3 pera" },
+            { country: "Česko", harness: "7.5", substance: "30 mg", originalPrice: "8,790.00 Kč", czkPrice: "8,790.00 Kč", unitPrice: 293, unitPriceGold: 195, note: "" },
+            { country: "Česko", harness: "10", substance: "40 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "předpoklad podzim 2025" },
+            { country: "Česko", harness: "10*10*10", substance: "120 mg", originalPrice: "25,490.00 Kč", czkPrice: "25,490.00 Kč", unitPrice: 212, unitPriceGold: 142, note: "cena v setu za 3 pera" },
+            { country: "Česko", harness: "12.5", substance: "50 mg", originalPrice: "11,190.00 Kč", czkPrice: "11,190.00 Kč", unitPrice: 224, unitPriceGold: 163, note: "od 07/2025" },
+            { country: "Česko", harness: "15", substance: "60 mg", originalPrice: "11,190.00 Kč", czkPrice: "11,190.00 Kč", unitPrice: 186, unitPriceGold: 136, note: "od 07/2025" },
             
             // Slovensko
-            { country: "Slovensko", harness: "2.5", substance: "10 mg", originalPrice: "177.00 €", czkPrice: "4,513.50 Kč", unitPrice: 451, note: "" },
-            { country: "Slovensko", harness: "5*5*5", substance: "60 mg", originalPrice: "710.00 €", czkPrice: "18,105.00 Kč", unitPrice: 302, note: "cena v setu za 3 pera" },
-            { country: "Slovensko", harness: "7.5", substance: "30 mg", originalPrice: "335.00 €", czkPrice: "8,542.50 Kč", unitPrice: 285, note: "" },
-            { country: "Slovensko", harness: "10", substance: "40 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Slovensko", harness: "10*10*10", substance: "120 mg", originalPrice: "991.00 €", czkPrice: "25,270.50 Kč", unitPrice: 211, note: "cena v setu za 3 pera" },
-            { country: "Slovensko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Slovensko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
+            { country: "Slovensko", harness: "2.5", substance: "10 mg", originalPrice: "177.00 €", czkPrice: "4,513.50 Kč", unitPrice: 451, unitPriceGold: 301, note: "" },
+            { country: "Slovensko", harness: "5", substance: "20 mg", originalPrice: "235.00 €", czkPrice: "5,992.50 Kč", unitPrice: 300, unitPriceGold: 200, note: "" },
+            { country: "Slovensko", harness: "5*5*5", substance: "60 mg", originalPrice: "710.00 €", czkPrice: "18,105.00 Kč", unitPrice: 302, unitPriceGold: 201, note: "cena v setu za 3 pera" },
+            { country: "Slovensko", harness: "7.5", substance: "30 mg", originalPrice: "335.00 €", czkPrice: "8,542.50 Kč", unitPrice: 285, unitPriceGold: 190, note: "" },
+            { country: "Slovensko", harness: "10", substance: "40 mg", originalPrice: "350.00 €", czkPrice: "8,925.00 Kč", unitPrice: 223, unitPriceGold: 149, note: "" },
+            { country: "Slovensko", harness: "10*10*10", substance: "120 mg", originalPrice: "991.00 €", czkPrice: "25,270.50 Kč", unitPrice: 211, unitPriceGold: 140, note: "cena v setu za 3 pera" },
+            { country: "Slovensko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            { country: "Slovensko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
             
             // Německo
-            { country: "Německo", harness: "2.5", substance: "10 mg", originalPrice: "206.00 €", czkPrice: convertEurToCzk("206.00") + " Kč", unitPrice: Math.round(convertEurToCzk("206.00") / 10), note: "" },
-            { country: "Německo", harness: "5", substance: "20 mg", originalPrice: "277.00 €", czkPrice: convertEurToCzk("277.00") + " Kč", unitPrice: Math.round(convertEurToCzk("277.00") / 20), note: "" },
-            { country: "Německo", harness: "7.5", substance: "30 mg", originalPrice: "383.00 €", czkPrice: convertEurToCzk("383.00") + " Kč", unitPrice: Math.round(convertEurToCzk("383.00") / 30), note: "" },
-            { country: "Německo", harness: "10", substance: "40 mg", originalPrice: "383.00 €", czkPrice: convertEurToCzk("383.00") + " Kč", unitPrice: Math.round(convertEurToCzk("383.00") / 40), note: "" },
-            { country: "Německo", harness: "12.5", substance: "50 mg", originalPrice: "489.00 €", czkPrice: convertEurToCzk("489.00") + " Kč", unitPrice: Math.round(convertEurToCzk("489.00") / 50), note: "" },
-            { country: "Německo", harness: "15", substance: "60 mg", originalPrice: "489.00 €", czkPrice: convertEurToCzk("489.00") + " Kč", unitPrice: Math.round(convertEurToCzk("489.00") / 60), note: "" },
-            { country: "Německo", harness: "15*15*15", substance: "180 mg", originalPrice: "1,445.00 €", czkPrice: convertEurToCzk("1445.00") + " Kč", unitPrice: Math.round(convertEurToCzk("1445.00") / 180), note: "cena v setu za 3 pera" },
+            { country: "Německo", harness: "2.5", substance: "10 mg", originalPrice: "206.00 €", czkPrice: convertEurToCzk("206.00") + " Kč", unitPrice: Math.round(convertEurToCzk("206.00") / 10), unitPriceGold: Math.round(convertEurToCzk("206.00") / 15), note: "" },
+            { country: "Německo", harness: "5", substance: "20 mg", originalPrice: "277.00 €", czkPrice: convertEurToCzk("277.00") + " Kč", unitPrice: Math.round(convertEurToCzk("277.00") / 20), unitPriceGold: Math.round(convertEurToCzk("277.00") / 30), note: "" },
+            { country: "Německo", harness: "7.5", substance: "30 mg", originalPrice: "383.00 €", czkPrice: convertEurToCzk("383.00") + " Kč", unitPrice: Math.round(convertEurToCzk("383.00") / 30), unitPriceGold: Math.round(convertEurToCzk("383.00") / 45), note: "" },
+            { country: "Německo", harness: "10", substance: "40 mg", originalPrice: "383.00 €", czkPrice: convertEurToCzk("383.00") + " Kč", unitPrice: Math.round(convertEurToCzk("383.00") / 40), unitPriceGold: Math.round(convertEurToCzk("383.00") / 60), note: "" },
+            { country: "Německo", harness: "12.5", substance: "50 mg", originalPrice: "489.00 €", czkPrice: convertEurToCzk("489.00") + " Kč", unitPrice: Math.round(convertEurToCzk("489.00") / 50), unitPriceGold: Math.round(convertEurToCzk("489.00") / 75), note: "" },
+            { country: "Německo", harness: "15", substance: "60 mg", originalPrice: "489.00 €", czkPrice: convertEurToCzk("489.00") + " Kč", unitPrice: Math.round(convertEurToCzk("489.00") / 60), unitPriceGold: Math.round(convertEurToCzk("489.00") / 90), note: "" },
+            { country: "Německo", harness: "15*15*15", substance: "180 mg", originalPrice: "1,445.00 €", czkPrice: convertEurToCzk("1445.00") + " Kč", unitPrice: Math.round(convertEurToCzk("1445.00") / 180), unitPriceGold: Math.round(convertEurToCzk("1445.00") / 270), note: "cena v setu za 3 pera" },
             
             // Polsko
-            { country: "Polsko", harness: "2.5", substance: "10 mg", originalPrice: "1,200.00 zl", czkPrice: convertPlnToCzk("1200.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("1200.00") / 10), note: "" },
-            { country: "Polsko", harness: "5", substance: "20 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Polsko", harness: "7.5", substance: "30 mg", originalPrice: "1,685.00 zl", czkPrice: convertPlnToCzk("1685.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("1685.00") / 30), note: "" },
-            { country: "Polsko", harness: "10", substance: "40 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Polsko", harness: "12.5", substance: "50 mg", originalPrice: "2,120.00 zl", czkPrice: convertPlnToCzk("2120.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("2120.00") / 50), note: "" },
-            { country: "Polsko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
+            { country: "Polsko", harness: "2.5", substance: "10 mg", originalPrice: "890.00 zl", czkPrice: convertPlnToCzk("890.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("890.00") / 10), unitPriceGold: Math.round(convertPlnToCzk("890.00") / 15), note: "" },
+            { country: "Polsko", harness: "5", substance: "20 mg", originalPrice: "1,165.00 zl", czkPrice: convertPlnToCzk("1165.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("1165.00") / 20), unitPriceGold: Math.round(convertPlnToCzk("1165.00") / 30), note: "" },
+            { country: "Polsko", harness: "7.5", substance: "30 mg", originalPrice: "1,630.00 zl", czkPrice: convertPlnToCzk("1630.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("1630.00") / 30), unitPriceGold: Math.round(convertPlnToCzk("1630.00") / 45), note: "" },
+            { country: "Polsko", harness: "10", substance: "40 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            { country: "Polsko", harness: "12.5", substance: "50 mg", originalPrice: "2,097.00 zl", czkPrice: convertPlnToCzk("2097.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("2097.00") / 50), unitPriceGold: Math.round(convertPlnToCzk("2097.00") / 75), note: "" },
+            { country: "Polsko", harness: "15", substance: "60 mg", originalPrice: "2,097.00 zl", czkPrice: convertPlnToCzk("2097.00") + " Kč", unitPrice: Math.round(convertPlnToCzk("2097.00") / 60), unitPriceGold: Math.round(convertPlnToCzk("2097.00") / 90), note: "" },
             
             // Rakousko
-            { country: "Rakousko", harness: "2.5", substance: "10 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Rakousko", harness: "5", substance: "20 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Rakousko", harness: "7.5", substance: "30 mg", originalPrice: "466.00 €", czkPrice: convertEurToCzk("466.00") + " Kč", unitPrice: Math.round(convertEurToCzk("466.00") / 30), note: "" },
-            { country: "Rakousko", harness: "10", substance: "40 mg", originalPrice: "466.00 €", czkPrice: convertEurToCzk("466.00") + " Kč", unitPrice: Math.round(convertEurToCzk("466.00") / 40), note: "" },
-            { country: "Rakousko", harness: "12.5", substance: "50 mg", originalPrice: "", czkPrice: "", unitPrice: null, note: "" },
-            { country: "Rakousko", harness: "15", substance: "60 mg", originalPrice: "581.40 €", czkPrice: convertEurToCzk("581.40") + " Kč", unitPrice: Math.round(convertEurToCzk("581.40") / 60), note: "" }
+            { country: "Rakousko", harness: "2.5", substance: "10 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            { country: "Rakousko", harness: "5", substance: "20 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            { country: "Rakousko", harness: "7.5", substance: "30 mg", originalPrice: "466.00 €", czkPrice: convertEurToCzk("466.00") + " Kč", unitPrice: Math.round(convertEurToCzk("466.00") / 30), unitPriceGold: Math.round(convertEurToCzk("466.00") / 45), note: "" },
+            { country: "Rakousko", harness: "10", substance: "40 mg", originalPrice: "466.00 €", czkPrice: convertEurToCzk("466.00") + " Kč", unitPrice: Math.round(convertEurToCzk("466.00") / 40), unitPriceGold: Math.round(convertEurToCzk("466.00") / 60), note: "" },
+            { country: "Rakousko", harness: "12.5", substance: "50 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            { country: "Rakousko", harness: "15", substance: "60 mg", originalPrice: "581.40 €", czkPrice: convertEurToCzk("581.40") + " Kč", unitPrice: Math.round(convertEurToCzk("581.40") / 60), unitPriceGold: Math.round(convertEurToCzk("581.40") / 90), note: "" }
         ];
 
         // Renderování grafického srovnání cen
@@ -786,7 +813,7 @@
                     const countryRow = document.createElement('tr');
                     countryRow.className = 'country';
                     countryRow.innerHTML = `
-                        <td colspan="7">
+                        <td colspan="8">
                             <i class="fas fa-flag"></i> ${currentCountry}
                         </td>
                     `;
@@ -815,6 +842,25 @@
                         priceClass = 'price-low';
                     }
                 }
+
+                // Určení třídy pro cenu včetně zlaté dávky
+                let priceGoldClass = '';
+                if (item.unitPriceGold !== null) {
+                    const validGoldPrices = data.filter(i => i.unitPriceGold !== null).map(i => i.unitPriceGold);
+                    const minGoldPrice = validGoldPrices.length > 0 ? Math.min(...validGoldPrices) : null;
+                    
+                    if (item.unitPriceGold === minGoldPrice) {
+                        priceGoldClass = 'best-price';
+                    } else if (item.unitPriceGold > 350) {
+                        priceGoldClass = 'price-very-high';
+                    } else if (item.unitPriceGold > 250) {
+                        priceGoldClass = 'price-high';
+                    } else if (item.unitPriceGold > 180) {
+                        priceGoldClass = 'price-medium';
+                    } else {
+                        priceGoldClass = 'price-low';
+                    }
+                }
                 
                 // Určení třídy pro poznámku
                 const noteClass = item.note === "NEW" ? 'new-note' : 'note';
@@ -826,6 +872,7 @@
                     <td>${item.originalPrice}</td>
                     <td>${item.czkPrice}</td>
                     <td class="${priceClass}">${item.unitPrice !== null ? item.unitPrice + ' Kč' : '-'}</td>
+                    <td class="${priceGoldClass}">${item.unitPriceGold !== null ? item.unitPriceGold + ' Kč' : '-'}</td>
                     <td class="${noteClass}">${item.note || '-'}</td>
                 `;
                 tableBody.appendChild(row);
@@ -916,10 +963,10 @@
 
         // Inicializace stránky
         document.addEventListener('DOMContentLoaded', () => {
-            // Nastavení defaultního filtru na Česko
-            document.getElementById('country-filter').value = 'Česko';
+            // Nastavení defaultního filtru na všechny země
+            document.getElementById('country-filter').value = 'all';
             
-            // Naplnění tabulky s filtrem pro Česko
+            // Naplnění tabulky s filtrem pro všechny země
             filterAndSortData();
             
             // Přidání event listenerů
