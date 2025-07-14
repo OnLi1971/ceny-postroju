@@ -144,7 +144,7 @@
             border-collapse: separate;
             border-spacing: 0;
             margin: 0;
-            min-width: 1000px;
+            min-width: 1000px; /* Base min-width for larger screens */
         }
         
         th {
@@ -511,14 +511,88 @@
                 min-width: 100%;
             }
 
-            td {
-                padding: 8px 4px;
-                font-size: 0.8rem;
+            /* Mobile table layout improvements */
+            .table-container {
+                overflow-x: hidden; /* Prevent horizontal scroll on small screens */
             }
 
-            th {
-                padding: 12px 4px;
-                font-size: 0.8rem;
+            table {
+                display: block; /* Make table a block to allow flexbox on rows */
+                width: 100%;
+                min-width: unset; /* Remove min-width for mobile */
+            }
+
+            thead {
+                display: none; /* Hide table header on small screens */
+            }
+
+            tr {
+                display: block; /* Make table rows behave like blocks */
+                margin-bottom: 15px;
+                border: 1px solid var(--light-gray);
+                border-radius: 8px;
+                padding: 10px;
+                background-color: white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+
+            tr:nth-child(even) {
+                background-color: var(--light); /* Reset even row background for card-like appearance */
+            }
+            
+            tr:hover {
+                background-color: rgba(72, 149, 239, 0.1) !important;
+            }
+
+            td {
+                display: flex; /* Make table cells behave like flex items */
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px dashed var(--light-gray); /* Use dashed border for separation */
+                font-size: 0.9rem;
+            }
+
+            td:last-child {
+                border-bottom: none; /* No border for the last cell in a row */
+            }
+
+            td::before {
+                /* Add column headers as data attributes for mobile view */
+                content: attr(data-label) ": ";
+                font-weight: bold;
+                color: var(--primary-dark);
+                flex-basis: 40%; /* Adjust as needed */
+                text-align: left;
+                padding-right: 10px;
+            }
+
+            /* Specific styling for the 'country' row to maintain prominence */
+            .country {
+                display: block;
+                position: static; /* Remove sticky on mobile */
+                background: linear-gradient(to right, rgba(67, 97, 238, 0.15), rgba(72, 149, 239, 0.15)) !important;
+                border-radius: 8px 8px 0 0; /* Keep top corners rounded */
+                margin-bottom: 0;
+                padding: 10px 15px 5px 15px; /* Adjust padding */
+                box-shadow: none; /* Remove redundant shadow */
+            }
+
+            .country td {
+                font-size: 1.1em;
+                font-weight: bold;
+                justify-content: center; /* Center country name */
+                padding: 5px 0;
+                border-bottom: none;
+                color: var(--primary-dark);
+            }
+
+            .country td::before {
+                content: none; /* Hide generated label for country name */
+            }
+            
+            .links-section {
+                padding: 20px;
             }
 
             .link-container {
@@ -528,6 +602,18 @@
             .help-link {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .price-chart {
+                padding: 20px;
+            }
+            .bar-label {
+                min-width: 100px; /* Adjust min-width for mobile bar labels */
+                font-size: 0.8em;
+            }
+            .bar-fill {
+                font-size: 0.75em;
+                padding-right: 8px;
             }
         }
         
@@ -623,8 +709,7 @@
             <i class="fas fa-chart-bar"></i> Grafické srovnání cen za 1mg
         </div>
         <div class="price-bars" id="price-bars">
-            <!-- Dynamicky vygenerováno pomocí JavaScriptu -->
-        </div>
+            </div>
     </div>
     
     <div class="table-container fade-in" style="animation-delay: 0.7s;">
@@ -690,7 +775,7 @@
             return (plnPrice * PLN_TO_CZK).toFixed(2);
         }
 
-        // Data tabulky - UPRAVENO: odebrány hodnoty za lomítkem v závorce
+        // Data tabulky - UPRAVENO: přidány ceny pro Slovensko 12.5 a 15mg
         const tableData = [
             // Česko
             { country: "Česko", harness: "2.5", substance: "10 mg", originalPrice: "4,790.00 Kč", czkPrice: "4,790.00 Kč", unitPrice: 479, unitPriceGold: 319, note: "" },
@@ -702,15 +787,15 @@
             { country: "Česko", harness: "12.5", substance: "50 mg", originalPrice: "11,190.00 Kč", czkPrice: "11,190.00 Kč", unitPrice: 224, unitPriceGold: 163, note: "od 07/2025" },
             { country: "Česko", harness: "15", substance: "60 mg", originalPrice: "11,190.00 Kč", czkPrice: "11,190.00 Kč", unitPrice: 186, unitPriceGold: 136, note: "od 07/2025" },
             
-            // Slovensko
-            { country: "Slovensko", harness: "2.5", substance: "10 mg", originalPrice: "177.00 €", czkPrice: "4,513.50 Kč", unitPrice: 451, unitPriceGold: 301, note: "" },
-            { country: "Slovensko", harness: "5", substance: "20 mg", originalPrice: "235.00 €", czkPrice: "5,992.50 Kč", unitPrice: 300, unitPriceGold: 200, note: "" },
-            { country: "Slovensko", harness: "5*5*5", substance: "60 mg", originalPrice: "710.00 €", czkPrice: "18,105.00 Kč", unitPrice: 302, unitPriceGold: 201, note: "cena v setu za 3 pera" },
-            { country: "Slovensko", harness: "7.5", substance: "30 mg", originalPrice: "335.00 €", czkPrice: "8,542.50 Kč", unitPrice: 285, unitPriceGold: 190, note: "" },
-            { country: "Slovensko", harness: "10", substance: "40 mg", originalPrice: "350.00 €", czkPrice: "8,925.00 Kč", unitPrice: 223, unitPriceGold: 149, note: "" },
-            { country: "Slovensko", harness: "10*10*10", substance: "120 mg", originalPrice: "991.00 €", czkPrice: "25,270.50 Kč", unitPrice: 211, unitPriceGold: 140, note: "cena v setu za 3 pera" },
-            { country: "Slovensko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
-            { country: "Slovensko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            // Slovensko - AKTUÁLNÍ CENY DLE POŽADAVKU
+            { country: "Slovensko", harness: "2.5", substance: "10 mg", originalPrice: "177.00 €", czkPrice: convertEurToCzk("177.00") + " Kč", unitPrice: Math.round(convertEurToCzk("177.00") / 10), unitPriceGold: Math.round(convertEurToCzk("177.00") / 15), note: "" },
+            { country: "Slovensko", harness: "5", substance: "20 mg", originalPrice: "235.00 €", czkPrice: convertEurToCzk("235.00") + " Kč", unitPrice: Math.round(convertEurToCzk("235.00") / 20), unitPriceGold: Math.round(convertEurToCzk("235.00") / 30), note: "" },
+            { country: "Slovensko", harness: "5*5*5", substance: "60 mg", originalPrice: "710.00 €", czkPrice: convertEurToCzk("710.00") + " Kč", unitPrice: Math.round(convertEurToCzk("710.00") / 60), unitPriceGold: Math.round(convertEurToCzk("710.00") / 90), note: "cena v setu za 3 pera" },
+            { country: "Slovensko", harness: "7.5", substance: "30 mg", originalPrice: "335.00 €", czkPrice: convertEurToCzk("335.00") + " Kč", unitPrice: Math.round(convertEurToCzk("335.00") / 30), unitPriceGold: Math.round(convertEurToCzk("335.00") / 45), note: "" },
+            { country: "Slovensko", harness: "10", substance: "40 mg", originalPrice: "350.00 €", czkPrice: convertEurToCzk("350.00") + " Kč", unitPrice: Math.round(convertEurToCzk("350.00") / 40), unitPriceGold: Math.round(convertEurToCzk("350.00") / 60), note: "" },
+            { country: "Slovensko", harness: "10*10*10", substance: "120 mg", originalPrice: "991.00 €", czkPrice: convertEurToCzk("991.00") + " Kč", unitPrice: Math.round(convertEurToCzk("991.00") / 120), unitPriceGold: Math.round(convertEurToCzk("991.00") / 180), note: "cena v setu za 3 pera" },
+            { country: "Slovensko", harness: "12.5", substance: "50 mg", originalPrice: "429.00 €", czkPrice: convertEurToCzk("429.00") + " Kč", unitPrice: Math.round(convertEurToCzk("429.00") / 50), unitPriceGold: Math.round(convertEurToCzk("429.00") / 75), note: "Nová cena" },
+            { country: "Slovensko", harness: "15", substance: "60 mg", originalPrice: "429.00 €", czkPrice: convertEurToCzk("429.00") + " Kč", unitPrice: Math.round(convertEurToCzk("429.00") / 60), unitPriceGold: Math.round(convertEurToCzk("429.00") / 90), note: "Nová cena" },
             
             // Německo
             { country: "Německo", harness: "2.5", substance: "10 mg", originalPrice: "206.00 €", czkPrice: convertEurToCzk("206.00") + " Kč", unitPrice: Math.round(convertEurToCzk("206.00") / 10), unitPriceGold: Math.round(convertEurToCzk("206.00") / 15), note: "" },
@@ -748,248 +833,253 @@
             
             const minPrice = validItems[0].unitPrice;
             const maxPrice = validItems[validItems.length - 1].unitPrice;
-            
+
             const priceBarsContainer = document.getElementById('price-bars');
-            priceBarsContainer.innerHTML = '';
-            
-            // Vytvořit pouze top 10 položek pro přehlednost
-            const topItems = validItems.slice(0, 10);
-            
-            topItems.forEach((item, index) => {
-                const barContainer = document.createElement('div');
-                barContainer.className = 'price-bar';
-                
-                const widthPercent = ((item.unitPrice - minPrice) / (maxPrice - minPrice)) * 80 + 20; // 20-100%
-                
-                let barClass = 'bar-medium';
-                if (item.unitPrice === minPrice) {
-                    barClass = 'bar-best';
-                } else if (item.unitPrice <= minPrice * 1.2) {
-                    barClass = 'bar-good';
-                } else if (item.unitPrice >= maxPrice * 0.8) {
-                    barClass = 'bar-very-high';
-                } else if (item.unitPrice >= maxPrice * 0.6) {
-                    barClass = 'bar-high';
+            priceBarsContainer.innerHTML = ''; // Clear previous bars
+
+            validItems.forEach(item => {
+                const bar = document.createElement('div');
+                bar.className = 'price-bar';
+
+                const barLabel = document.createElement('div');
+                barLabel.className = 'bar-label';
+                barLabel.textContent = `${item.country} ${item.harness}mg`;
+                bar.appendChild(barLabel);
+
+                const barVisual = document.createElement('div');
+                barVisual.className = 'bar-visual';
+
+                const barFill = document.createElement('div');
+                let fillWidth = (item.unitPrice - minPrice) / (maxPrice - minPrice) * 100;
+                if (maxPrice === minPrice) { // Handle case where all prices are the same
+                    fillWidth = 100;
+                } else if (fillWidth === 0 && item.unitPrice === minPrice) { // Ensure min price bar is visible
+                    fillWidth = 10; // Minimum width for the best price bar
+                } else {
+                    fillWidth = 10 + (fillWidth * 0.9); // Scale to not be too small/large
                 }
                 
-                barContainer.innerHTML = `
-                    <div class="bar-label">${item.country} ${item.harness}</div>
-                    <div class="bar-visual">
-                        <div class="bar-fill ${barClass}" style="width: ${widthPercent}%">
-                            ${item.unitPrice} Kč
-                        </div>
-                        ${item.unitPrice === minPrice ? '<div class="best-deal-badge">Nejlepší</div>' : ''}
-                    </div>
-                `;
-                
-                priceBarsContainer.appendChild(barContainer);
+                barFill.style.width = `${fillWidth}%`;
+                barFill.textContent = `${item.unitPrice} CZK/mg`;
+
+                let barClass = '';
+                if (item.unitPrice === minPrice) {
+                    barClass = 'bar-best';
+                    const bestDealBadge = document.createElement('span');
+                    bestDealBadge.className = 'best-deal-badge';
+                    bestDealBadge.textContent = 'Nejlepší nabídka';
+                    barVisual.appendChild(bestDealBadge);
+                } else if (item.unitPrice < minPrice * 1.2) {
+                    barClass = 'bar-good';
+                } else if (item.unitPrice < minPrice * 1.5) {
+                    barClass = 'bar-medium';
+                } else if (item.unitPrice < minPrice * 2) {
+                    barClass = 'bar-high';
+                } else {
+                    barClass = 'bar-very-high';
+                }
+                barFill.classList.add(barClass);
+
+                barVisual.appendChild(barFill);
+                bar.appendChild(barVisual);
+                priceBarsContainer.appendChild(bar);
             });
         }
 
-        // Naplnění tabulky daty
-        function renderTable(data) {
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-            
-            let currentCountry = '';
-            
-            // Najdeme nejnižší cenu v datech (pro zvýraznění)
-            const validPrices = data.filter(item => item.unitPrice !== null).map(item => item.unitPrice);
-            const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : null;
-            
-            // Počet produktů pro statistiky
-            const productCount = data.filter(item => item.unitPrice !== null).length;
-            document.getElementById('product-count').textContent = productCount;
-            
-            // Nejlepší cena pro statistiky
-            if (minPrice !== null) {
-                document.getElementById('best-price').textContent = minPrice + ' Kč';
+        // Zde jsou definice pro selektory a tlačítka
+        const countryFilter = document.getElementById('country-filter');
+        const harnessFilter = document.getElementById('harness-filter');
+        const sortBy = document.getElementById('sort-by');
+        const applyBtn = document.getElementById('apply-btn');
+        const tableBody = document.getElementById('table-body');
+        const priceTable = document.getElementById('price-table');
+
+        let currentSortColumn = 'default';
+        let currentSortDirection = 'asc';
+
+        // Funkce pro aktualizaci tabulky na základě filtrů a řazení
+        function updateTable() {
+            let filteredData = [...tableData]; // Kopie původních dat
+
+            // Aplikovat filtr země
+            const selectedCountry = countryFilter.value;
+            if (selectedCountry !== 'all') {
+                filteredData = filteredData.filter(item => item.country === selectedCountry);
             }
-            
-            data.forEach((item, index) => {
-                // Skupinový řádek pro zemi
-                if (item.country !== currentCountry) {
-                    currentCountry = item.country;
-                    const countryRow = document.createElement('tr');
-                    countryRow.className = 'country';
-                    countryRow.innerHTML = `
-                        <td colspan="8">
-                            <i class="fas fa-flag"></i> ${currentCountry}
-                        </td>
-                    `;
-                    tableBody.appendChild(countryRow);
-                }
-                
-                // Řádek s daty
-                const row = document.createElement('tr');
-                if (item.isNew) {
-                    row.classList.add('new-item');
-                }
-                
-                // Určení třídy pro cenu
-                let priceClass = '';
-                if (item.unitPrice !== null) {
-                    if (item.unitPrice === minPrice) {
-                        priceClass = 'best-price';
-                        row.classList.add('best-price-row');
-                    } else if (item.unitPrice > 500) {
-                        priceClass = 'price-very-high';
-                    } else if (item.unitPrice > 350) {
-                        priceClass = 'price-high';
-                    } else if (item.unitPrice > 250) {
-                        priceClass = 'price-medium';
-                    } else {
-                        priceClass = 'price-low';
+
+            // Aplikovat filtr pera (harness)
+            const selectedHarness = harnessFilter.value;
+            if (selectedHarness !== 'all') {
+                filteredData = filteredData.filter(item => item.harness === selectedHarness);
+            }
+
+            // Odebrat produkty s null cenou pro výpočty a zobrazení
+            const validData = filteredData.filter(item => item.unitPrice !== null);
+
+            // Řazení
+            const sortKey = sortBy.value;
+            if (sortKey === 'default') {
+                // Výchozí řazení (podle pořadí v datech, pak podle pera)
+                filteredData.sort((a, b) => {
+                    const countryOrder = ["Česko", "Slovensko", "Německo", "Polsko", "Rakousko"];
+                    const harnessOrder = ["2.5", "5", "7.5", "10", "12.5", "15", "5*5*5", "10*10*10", "15*15*15"];
+                    
+                    const countryA = countryOrder.indexOf(a.country);
+                    const countryB = countryOrder.indexOf(b.country);
+                    
+                    if (countryA !== countryB) {
+                        return countryA - countryB;
                     }
+                    
+                    const harnessA = harnessOrder.indexOf(a.harness);
+                    const harnessB = harnessOrder.indexOf(b.harness);
+                    
+                    return harnessA - harnessB;
+                });
+            } else if (sortKey === 'price-asc') {
+                filteredData.sort((a, b) => (a.unitPrice || Infinity) - (b.unitPrice || Infinity));
+            } else if (sortKey === 'price-desc') {
+                filteredData.sort((a, b) => (b.unitPrice || -Infinity) - (a.unitPrice || -Infinity));
+            } else if (sortKey === 'country-price') {
+                // Řazení podle nejlevnější v zemi (seřadí produkty v každé zemi)
+                const groupedByCountry = filteredData.reduce((acc, item) => {
+                    (acc[item.country] = acc[item.country] || []).push(item);
+                    return acc;
+                }, {});
+
+                for (const country in groupedByCountry) {
+                    groupedByCountry[country].sort((a, b) => (a.unitPrice || Infinity) - (b.unitPrice || Infinity));
                 }
 
-                // Určení třídy pro cenu včetně zlaté dávky
-                let priceGoldClass = '';
-                if (item.unitPriceGold !== null) {
-                    const validGoldPrices = data.filter(i => i.unitPriceGold !== null).map(i => i.unitPriceGold);
-                    const minGoldPrice = validGoldPrices.length > 0 ? Math.min(...validGoldPrices) : null;
-                    
-                    if (item.unitPriceGold === minGoldPrice) {
-                        priceGoldClass = 'best-price';
-                    } else if (item.unitPriceGold > 350) {
-                        priceGoldClass = 'price-very-high';
-                    } else if (item.unitPriceGold > 250) {
-                        priceGoldClass = 'price-high';
-                    } else if (item.unitPriceGold > 180) {
-                        priceGoldClass = 'price-medium';
-                    } else {
-                        priceGoldClass = 'price-low';
-                    }
+                filteredData = Object.values(groupedByCountry).flat(); // Sloučí zpět do jednoho pole
+            } else if (sortKey === 'substance-asc') {
+                filteredData.sort((a, b) => {
+                    const valA = parseFloat(a.substance.replace(' mg', ''));
+                    const valB = parseFloat(b.substance.replace(' mg', ''));
+                    return valA - valB;
+                });
+            } else if (sortKey === 'substance-desc') {
+                filteredData.sort((a, b) => {
+                    const valA = parseFloat(a.substance.replace(' mg', ''));
+                    const valB = parseFloat(b.substance.replace(' mg', ''));
+                    return valB - valA;
+                });
+            } else if (sortKey === 'harness' || sortKey === 'original-price' || sortKey === 'czk-price' || sortKey === 'unit-price' || sortKey === 'unit-price-gold') {
+                // Sorting for table headers if clicked
+                if (currentSortColumn === sortKey) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = sortKey;
+                    currentSortDirection = 'asc';
                 }
-                
-                // Určení třídy pro poznámku
-                const noteClass = item.note === "NEW" ? 'new-note' : 'note';
-                
+
+                filteredData.sort((a, b) => {
+                    let valA, valB;
+                    if (sortKey === 'harness') {
+                        valA = parseFloat(a.harness);
+                        valB = parseFloat(b.harness);
+                    } else if (sortKey === 'original-price' || sortKey === 'czk-price') {
+                        valA = parseFloat(a[sortKey].replace(',', '.').replace(/[^0-9.-]+/g,"")) || 0;
+                        valB = parseFloat(b[sortKey].replace(',', '.').replace(/[^0-9.-]+/g,"")) || 0;
+                    } else { // unit-price, unit-price-gold
+                        valA = a[sortKey] || Infinity;
+                        valB = b[sortKey] || Infinity;
+                    }
+
+                    if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+                    if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // Najít nejnižší cenu za 1mg pro zobrazení "nejlepší nabídky" a výpočtu úspory
+            const lowestUnitPrice = validData.length > 0 ? Math.min(...validData.map(item => item.unitPrice)) : 0;
+            const highestUnitPrice = validData.length > 0 ? Math.max(...validData.map(item => item.unitPrice)) : 0;
+
+            // Vyplnění tabulky
+            tableBody.innerHTML = '';
+            let lastCountry = null;
+            filteredData.forEach(item => {
+                // Přidat řádek země, pokud se změnila země nebo je to první položka
+                if (item.country !== lastCountry) {
+                    const countryRow = document.createElement('tr');
+                    countryRow.classList.add('country');
+                    countryRow.innerHTML = `<td colspan="8">${item.country}</td>`;
+                    tableBody.appendChild(countryRow);
+                    lastCountry = item.country;
+                }
+
+                const row = document.createElement('tr');
+                let priceClass = '';
+                if (item.unitPrice === lowestUnitPrice && item.unitPrice !== null) {
+                    priceClass = 'best-price';
+                    row.classList.add('best-price-row');
+                } else if (item.unitPrice >= lowestUnitPrice * 2 && item.unitPrice !== null) {
+                    priceClass = 'price-very-high';
+                } else if (item.unitPrice >= lowestUnitPrice * 1.5 && item.unitPrice !== null) {
+                    priceClass = 'price-high';
+                } else if (item.unitPrice >= lowestUnitPrice * 1.2 && item.unitPrice !== null) {
+                    priceClass = 'price-medium';
+                } else if (item.unitPrice !== null && item.unitPrice > 0) {
+                    priceClass = 'price-low';
+                }
+
+                let unitPriceText = item.unitPrice !== null ? `${item.unitPrice} Kč` : 'N/A';
+                let unitPriceGoldText = item.unitPriceGold !== null ? `${item.unitPriceGold} Kč` : 'N/A';
+
                 row.innerHTML = `
-                    <td>${item.country}</td>
-                    <td>${item.harness}${item.isNew ? '<span class="new-badge">NEW</span>' : ''}</td>
-                    <td>${item.substance}</td>
-                    <td>${item.originalPrice}</td>
-                    <td>${item.czkPrice}</td>
-                    <td class="${priceClass}">${item.unitPrice !== null ? item.unitPrice + ' Kč' : '-'}</td>
-                    <td class="${priceGoldClass}">${item.unitPriceGold !== null ? item.unitPriceGold + ' Kč' : '-'}</td>
-                    <td class="${noteClass}">${item.note || '-'}</td>
+                    <td data-label="Země">${item.country}</td>
+                    <td data-label="Pero">${item.harness}</td>
+                    <td data-label="Účinné látky">${item.substance}</td>
+                    <td data-label="Cena orig.">${item.originalPrice}</td>
+                    <td data-label="Cena CZK">${item.czkPrice}</td>
+                    <td data-label="Cena/1mg CZK" class="${priceClass}">${unitPriceText}</td>
+                    <td data-label="Cena/1mg zl. dávka" class="${priceClass}">${unitPriceGoldText}</td>
+                    <td data-label="Poznámka">${item.note} ${item.note.includes("Nová cena") ? '<span class="new-badge">Nové</span>' : ''}</td>
                 `;
                 tableBody.appendChild(row);
             });
-            
-            // Aktualizace statistiky úspor a grafu
-            updateSavingsStats(data);
-            renderPriceChart(data);
-        }
 
-        // Aktualizace statistiky úspor
-        function updateSavingsStats(data) {
-            const validPrices = data.filter(item => item.unitPrice !== null).map(item => item.unitPrice);
+            // Aktualizace statistik
+            document.getElementById('product-count').textContent = validData.length;
+            document.getElementById('best-price').textContent = lowestUnitPrice !== 0 ? `${lowestUnitPrice} Kč` : 'N/A';
             
-            if (validPrices.length > 0) {
-                const minPrice = Math.min(...validPrices);
-                const maxPrice = Math.max(...validPrices);
-                const savings = maxPrice - minPrice;
-                
-                const savingsElement = document.getElementById('price-saving');
-                savingsElement.textContent = savings.toFixed(0) + ' Kč';
-                savingsElement.style.color = 'var(--success)';
+            let savings = 0;
+            if (lowestUnitPrice > 0 && highestUnitPrice > 0 && highestUnitPrice !== Infinity) {
+                savings = (highestUnitPrice - lowestUnitPrice);
             }
-        }
+            document.getElementById('price-saving').textContent = savings > 0 ? `${savings.toFixed(0)} Kč` : '0 Kč';
 
-        // Filtrování a řazení dat
-        function filterAndSortData() {
-            const countryFilter = document.getElementById('country-filter').value;
-            const harnessFilter = document.getElementById('harness-filter').value;
-            const sortBy = document.getElementById('sort-by').value;
-            
-            let filteredData = [...tableData];
-            
-            // Filtrování podle země
-            if (countryFilter !== 'all') {
-                filteredData = filteredData.filter(item => item.country === countryFilter);
-            }
-            
-            // Filtrování podle typu pera
-            if (harnessFilter !== 'all') {
-                filteredData = filteredData.filter(item => {
-                    // Vezme první část před hvězdičkou pro přesné srovnání
-                    const harnessNumber = item.harness.split('*')[0];
-                    return harnessNumber === harnessFilter;
-                });
-            }
-            
-            // Řazení dat
-            if (sortBy === 'price-asc') {
-                filteredData.sort((a, b) => {
-                    if (a.unitPrice === null) return 1;
-                    if (b.unitPrice === null) return -1;
-                    return a.unitPrice - b.unitPrice;
-                });
-            } else if (sortBy === 'price-desc') {
-                filteredData.sort((a, b) => {
-                    if (a.unitPrice === null) return 1;
-                    if (b.unitPrice === null) return -1;
-                    return b.unitPrice - a.unitPrice;
-                });
-            } else if (sortBy === 'country-price') {
-                const countryMinPrices = {};
-                tableData.forEach(item => {
-                    if (item.unitPrice !== null) {
-                        if (!countryMinPrices[item.country] || item.unitPrice < countryMinPrices[item.country].unitPrice) {
-                            countryMinPrices[item.country] = item;
-                        }
-                    }
-                });
-                filteredData = Object.values(countryMinPrices);
-                filteredData.sort((a, b) => a.unitPrice - b.unitPrice);
-            } else if (sortBy === 'substance-asc') {
-                filteredData.sort((a, b) => {
-                    const aSubstance = parseFloat(a.substance);
-                    const bSubstance = parseFloat(b.substance);
-                    return aSubstance - bSubstance;
-                });
-            } else if (sortBy === 'substance-desc') {
-                filteredData.sort((a, b) => {
-                    const aSubstance = parseFloat(a.substance);
-                    const bSubstance = parseFloat(b.substance);
-                    return bSubstance - aSubstance;
-                });
-            }
-            
-            renderTable(filteredData);
-        }
+            // Renderování grafu
+            renderPriceChart(validData);
 
-        // Inicializace stránky
-        document.addEventListener('DOMContentLoaded', () => {
-            // Nastavení defaultního filtru na všechny země
-            document.getElementById('country-filter').value = 'all';
-            
-            // Naplnění tabulky s filtrem pro všechny země
-            filterAndSortData();
-            
-            // Přidání event listenerů
-            document.getElementById('apply-btn').addEventListener('click', filterAndSortData);
-            
-            // Řazení při kliknutí na záhlaví tabulky
+            // Nastavení ikon řazení
             document.querySelectorAll('th[data-sort]').forEach(th => {
-                th.addEventListener('click', function() {
-                    const sortBy = this.getAttribute('data-sort');
-                    const sortSelect = document.getElementById('sort-by');
-                    
-                    // Nastavíme správnou hodnotu v selectu
-                    if (sortBy === 'unit-price') {
-                        sortSelect.value = 'price-asc';
-                    } else {
-                        sortSelect.value = 'default';
-                    }
-                    
-                    // Spustíme filtrování a řazení
-                    filterAndSortData();
-                });
+                th.querySelector('i').className = 'fas fa-sort';
+                if (th.dataset.sort === currentSortColumn) {
+                    th.querySelector('i').className = `fas fa-sort-amount-${currentSortDirection === 'asc' ? 'up' : 'down'}`;
+                }
+            });
+        }
+
+        // Event Listeners
+        applyBtn.addEventListener('click', updateTable);
+        countryFilter.addEventListener('change', updateTable);
+        harnessFilter.addEventListener('change', updateTable);
+        sortBy.addEventListener('change', updateTable);
+
+        // Event listeners pro řazení kliknutím na hlavičku tabulky
+        document.querySelectorAll('#price-table th[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                // Set the select box value to "default" so that the header sorting takes precedence
+                sortBy.value = 'default'; 
+                currentSortColumn = header.dataset.sort;
+                updateTable();
             });
         });
+
+        // Počáteční načtení tabulky
+        updateTable();
     </script>
 </body>
 </html>
