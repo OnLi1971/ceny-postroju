@@ -491,12 +491,19 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .controls {
                 flex-direction: column;
+                gap: 15px;
+                padding: 15px;
             }
             
             .control-group {
                 width: 100%;
+                min-width: auto;
             }
             
             button {
@@ -505,29 +512,129 @@
             
             h1 {
                 font-size: 1.8rem;
+                margin-bottom: 20px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 10px;
             }
             
             .stat-card {
                 min-width: 100%;
+                padding: 15px;
+            }
+
+            .stat-card i {
+                font-size: 1.5em;
+            }
+
+            .stat-value {
+                font-size: 1.4em;
+            }
+
+            /* Mobilní optimalizace tabulky */
+            .table-container {
+                margin: 0 -10px;
+                border-radius: 0;
+                box-shadow: none;
+                border-top: 1px solid var(--light-gray);
+                border-bottom: 1px solid var(--light-gray);
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            th {
+                padding: 10px 4px;
+                font-size: 0.75rem;
+                line-height: 1.2;
             }
 
             td {
                 padding: 8px 4px;
-                font-size: 0.8rem;
+                font-size: 0.75rem;
+                line-height: 1.3;
             }
 
-            th {
-                padding: 12px 4px;
-                font-size: 0.8rem;
+            .country td {
+                font-size: 0.9em;
+                padding: 8px 6px;
+            }
+
+            /* Grafické srovnání na mobilu */
+            .price-chart {
+                margin: 0 -10px 20px -10px;
+                border-radius: 0;
+                padding: 20px 15px;
+            }
+
+            .chart-title {
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+            }
+
+            .price-bars {
+                gap: 10px;
+            }
+
+            .price-bar {
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px;
+                background: rgba(248, 249, 250, 0.8);
+                border-radius: 12px;
+            }
+
+            .bar-label {
+                min-width: auto;
+                width: 100%;
+                text-align: center;
+                font-size: 0.85em;
+                padding-bottom: 5px;
+            }
+
+            .bar-visual {
+                height: 30px;
+                width: 100%;
+                border-radius: 15px;
+            }
+
+            .bar-fill {
+                padding-right: 10px;
+                font-size: 0.8em;
+                justify-content: center;
+            }
+
+            .best-deal-badge {
+                position: static;
+                margin-top: 5px;
+                display: inline-block;
+                font-size: 0.65em;
             }
 
             .link-container {
                 flex-direction: column;
+                gap: 15px;
             }
 
             .help-link {
                 width: 100%;
                 justify-content: center;
+                padding: 12px 20px;
+            }
+
+            .links-section {
+                margin: 0 -10px 20px -10px;
+                border-radius: 0;
+                padding: 20px 15px;
+            }
+
+            footer {
+                margin: 20px -10px 0 -10px;
+                border-radius: 0;
+                padding: 15px;
             }
         }
         
@@ -665,7 +772,7 @@
     </div>
 
     <footer class="fade-in" style="animation-delay: 1.0s;">
-        <p><i class="fas fa-info-circle"></i> Kurzová konverze: 1 EUR = 25.50 CZK, 1 PLN = 5.90 CZK | Poslední aktualizace: červen 2025</p>
+        <p><i class="fas fa-info-circle"></i> Kurzová konverze: 1 EUR = 25.50 CZK, 1 PLN = 5.90 CZK | Poslední aktualizace: červenec 2025</p>
         <p><i class="fas fa-sync-alt"></i> Data se aktualizují automaticky při změně filtrů</p>
     </footer>
 
@@ -690,7 +797,7 @@
             return (plnPrice * PLN_TO_CZK).toFixed(2);
         }
 
-        // Data tabulky - UPRAVENO: odebrány hodnoty za lomítkem v závorce
+        // Data tabulky - AKTUALIZOVÁNO: doplněny ceny pro Slovensko 12.5 a 15mg
         const tableData = [
             // Česko
             { country: "Česko", harness: "2.5", substance: "10 mg", originalPrice: "4,790.00 Kč", czkPrice: "4,790.00 Kč", unitPrice: 479, unitPriceGold: 319, note: "" },
@@ -702,15 +809,15 @@
             { country: "Česko", harness: "12.5", substance: "50 mg", originalPrice: "11,190.00 Kč", czkPrice: "11,190.00 Kč", unitPrice: 224, unitPriceGold: 163, note: "od 07/2025" },
             { country: "Česko", harness: "15", substance: "60 mg", originalPrice: "11,190.00 Kč", czkPrice: "11,190.00 Kč", unitPrice: 186, unitPriceGold: 136, note: "od 07/2025" },
             
-            // Slovensko
+            // Slovensko - AKTUALIZOVÁNO: doplněny ceny pro 12.5 a 15mg na 429 EUR
             { country: "Slovensko", harness: "2.5", substance: "10 mg", originalPrice: "177.00 €", czkPrice: "4,513.50 Kč", unitPrice: 451, unitPriceGold: 301, note: "" },
             { country: "Slovensko", harness: "5", substance: "20 mg", originalPrice: "235.00 €", czkPrice: "5,992.50 Kč", unitPrice: 300, unitPriceGold: 200, note: "" },
             { country: "Slovensko", harness: "5*5*5", substance: "60 mg", originalPrice: "710.00 €", czkPrice: "18,105.00 Kč", unitPrice: 302, unitPriceGold: 201, note: "cena v setu za 3 pera" },
             { country: "Slovensko", harness: "7.5", substance: "30 mg", originalPrice: "335.00 €", czkPrice: "8,542.50 Kč", unitPrice: 285, unitPriceGold: 190, note: "" },
             { country: "Slovensko", harness: "10", substance: "40 mg", originalPrice: "350.00 €", czkPrice: "8,925.00 Kč", unitPrice: 223, unitPriceGold: 149, note: "" },
             { country: "Slovensko", harness: "10*10*10", substance: "120 mg", originalPrice: "991.00 €", czkPrice: "25,270.50 Kč", unitPrice: 211, unitPriceGold: 140, note: "cena v setu za 3 pera" },
-            { country: "Slovensko", harness: "12.5", substance: "50 mg", originalPrice: "Zatím není v nabídce", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
-            { country: "Slovensko", harness: "15", substance: "60 mg", originalPrice: "", czkPrice: "", unitPrice: null, unitPriceGold: null, note: "" },
+            { country: "Slovensko", harness: "12.5", substance: "50 mg", originalPrice: "429.00 €", czkPrice: "10,939.50 Kč", unitPrice: 219, unitPriceGold: 146, note: "nová cena 07/2025" },
+            { country: "Slovensko", harness: "15", substance: "60 mg", originalPrice: "429.00 €", czkPrice: "10,939.50 Kč", unitPrice: 182, unitPriceGold: 122, note: "nová cena 07/2025" },
             
             // Německo
             { country: "Německo", harness: "2.5", substance: "10 mg", originalPrice: "206.00 €", czkPrice: convertEurToCzk("206.00") + " Kč", unitPrice: Math.round(convertEurToCzk("206.00") / 10), unitPriceGold: Math.round(convertEurToCzk("206.00") / 15), note: "" },
@@ -863,7 +970,7 @@
                 }
                 
                 // Určení třídy pro poznámku
-                const noteClass = item.note === "NEW" ? 'new-note' : 'note';
+                const noteClass = item.note && item.note.includes("nová cena") ? 'new-note' : 'note';
                 
                 row.innerHTML = `
                     <td>${item.country}</td>
