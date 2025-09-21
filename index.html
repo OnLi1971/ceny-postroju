@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ceník per v Evropě — veřejná (read‑only) verze</title>
+  <title>Ceník per v Evropě</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,20 +15,31 @@
       --good:#2ecc71; --warn:#f39c12; --bad:#ff5c7c;
     }
     *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu;color:var(--text);
-      background: radial-gradient(1200px 700px at 15% -10%, #1a2550 0%, transparent 60%),
-                  radial-gradient(1000px 600px at 90% -20%, #192a4a 0%, transparent 65%), var(--bg)}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% -10%, #1a2550 0%, transparent 60%),
+        radial-gradient(1000px 600px at 90% -20%, #192a4a 0%, transparent 65%),
+        var(--bg);
+    }
     .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
-    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+    header{display:flex;gap:16px;align-items:center;justify-content:flex-start;margin-bottom:20px}
     .title{display:flex;align-items:center;gap:12px}
     .title h1{margin:0;font-weight:700;font-size:clamp(20px,3vw,28px)}
-    .badge{background:linear-gradient(135deg,var(--accent),#77ffe7);color:#082a2a;border-radius:999px;padding:6px 10px;font-weight:700;font-size:12px}
 
-    .toolbar{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid var(--border);padding:14px;border-radius:var(--radius);box-shadow:var(--card-shadow)}
+    .toolbar{
+      display:grid;grid-template-columns:repeat(12,1fr);gap:12px;
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--border);padding:14px;border-radius:var(--radius);box-shadow:var(--card-shadow)
+    }
     .tool{grid-column: span 4; display:flex;flex-direction:column;gap:6px}
     .tool label{font-size:12px;color:var(--muted)}
-    select,input{width:100%;height:40px;border-radius:10px;border:1px solid var(--border);background:#0c1327;color:var(--text);padding:0 12px;outline:none}
+    select,input{
+      width:100%;height:40px;border-radius:10px;border:1px solid var(--border);
+      background:#0c1327;color:var(--text);padding:0 12px;outline:none
+    }
     select:focus,input:focus{box-shadow:0 0 0 4px rgba(32,212,212,.25)}
 
     .cards{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin:18px 0}
@@ -36,11 +47,26 @@
     .kpi{font-size:28px;font-weight:800}
     .kpi-label{color:var(--muted);font-size:12px;margin-top:6px}
 
-    .table-wrap{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden;margin-top:16px}
-    table{width:100%;border-collapse:separate;border-spacing:0}
-    thead th{position:sticky;top:0;background:#0e152d;border-bottom:1px solid var(--border);text-align:left;font-weight:700;padding:12px;font-size:13px}
-    tbody td{padding:12px;border-bottom:1px solid var(--border);font-size:14px}
+    .table-wrap{
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--card-shadow);
+      overflow-x:auto; /* klíč pro mobily: horizontální scroll */
+      -webkit-overflow-scrolling: touch;
+      margin-top:16px
+    }
+    table{width:100%;border-collapse:separate;border-spacing:0;table-layout:auto}
+    thead th{
+      position:sticky;top:0;background:#0e152d;border-bottom:1px solid var(--border);
+      text-align:left;font-weight:700;padding:12px;font-size:13px;white-space:nowrap
+    }
+    tbody td{
+      padding:12px;border-bottom:1px solid var(--border);font-size:14px;
+      vertical-align:top;word-break:break-word
+    }
     tbody tr:hover{background:#0f1936}
+
+    /* identifikace sloupců kvůli responsivitě */
+    .col-orig{}, .col-note{}
 
     .pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
     .pill.excellent{background:rgba(46,204,113,.25);color:#c9ffdf;border:1px solid rgba(46,204,113,.35)}
@@ -50,8 +76,25 @@
     .pill.bad{background:rgba(255,92,124,.15);color:#ffb3c1}
 
     .muted{color:var(--muted)}
-    @media (max-width: 900px){.tool{grid-column: span 6}.card{grid-column: span 6}}
-    @media (max-width: 640px){.tool{grid-column: span 12}.card{grid-column: span 12}}
+
+    /* Responsivita */
+    @media (max-width: 900px){
+      .tool{grid-column: span 6}
+      .card{grid-column: span 6}
+    }
+    @media (max-width: 640px){
+      .tool{grid-column: span 12}
+      .card{grid-column: span 12}
+      .table-wrap{margin:10px -8px 0 -8px;border-radius:10px}
+      thead th, tbody td{padding:10px;font-size:13px}
+    }
+    /* Na velmi úzkých displejích: skryj méně důležité sloupce pro přehlednost */
+    @media (max-width: 480px){
+      thead th.col-orig, thead th.col-note,
+      tbody td.col-orig, tbody td.col-note{display:none}
+      thead th, tbody td{padding:8px;font-size:12px}
+      .kpi{font-size:22px}
+    }
   </style>
 </head>
 <body>
@@ -60,12 +103,9 @@
       <div class="title">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20h12M8 16l8-8a2.828 2.828 0 114 4l-8 8H8v-4z" stroke="#6aa5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <h1>Ceník per v Evropě</h1>
-        <span class="badge">verejná verze — čtení, filtrování a export</span>
       </div>
-      <button class="btn" id="downloadCsv">Export CSV</button>
     </header>
 
-    <!-- READ-ONLY toolbar: pouze filtry/sort/search, žádné kurzy ani JSON panel -->
     <div class="toolbar">
       <div class="tool">
         <label>Země</label>
@@ -102,19 +142,28 @@
       <table>
         <thead>
           <tr>
-            <th>Země</th><th>Pero</th><th>Účinná látka</th><th>Cena orig.</th><th>Cena CZK</th><th>Cena / 1mg</th><th>Cena / 1mg (zlatá)</th><th>Poznámka</th>
+            <th>Země</th>
+            <th>Pero</th>
+            <th>Účinná látka</th>
+            <th class="col-orig">Cena orig.</th>
+            <th>Cena CZK</th>
+            <th>Cena / 1mg</th>
+            <th>Cena / 1mg (zlatá)</th>
+            <th class="col-note">Poznámka</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
-      <div id="selftest" class="muted" style="font-size:12px;margin:10px 12px 16px"></div>
     </div>
 
-    <p class="muted" style="margin-top:12px">Fixní kurzy: EUR 24.20 CZK, PLN 5.90 CZK. Data jsou součástí stránky (statický build).</p>
+    <p class="muted" style="margin-top:12px">
+      Fixní kurzy pro přepočet: EUR 24.20 CZK, PLN 5.90 CZK.
+      <br>
+      <strong>Upozornění:</strong> uvedené přepočty a ceny jsou orientační a mohou se lišit podle konkrétního prodejce, lokální dostupnosti a aktuálního kurzu.
+    </p>
   </div>
 
   <script>
-    // READ-ONLY: pevné kurzy + data v kódu, bez localStorage a bez JSON editoru
     const CONFIG = {
       rates:{ EUR:24.2, PLN:5.90 },
       items:[
@@ -157,14 +206,12 @@
       ]
     };
 
-    // Utility
     const fmtCZK = n => (n==null||isNaN(n))? '–' : n.toLocaleString('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0});
     const fmtPrice = p => p.amount==null? '–' : (p.currency==='CZK'? `${(+p.amount).toLocaleString('cs-CZ')} Kč` : `${(+p.amount).toLocaleString('cs-CZ')} ${p.currency}`);
     const toCZK = (item)=>{ const {amount,currency}=item.price; if(amount==null) return null; if(currency==='CZK') return Math.round(amount); const r=CONFIG.rates[currency]; return r? Math.round(amount*r):null; };
     const unit = (item)=>{ const czk=toCZK(item); return (!czk||!item.substanceMgTotal)? null : Math.round(czk/item.substanceMgTotal); };
     const unitGold = (item)=>{ const czk=toCZK(item); return (!czk||!item.substanceMgTotal)? null : Math.round(czk/Math.round(item.substanceMgTotal*1.5)); };
 
-    // Filtry
     function populateFilters(){
       const countries=[...new Set(CONFIG.items.map(i=>i.country))].sort();
       const harnesses=[...new Set(CONFIG.items.map(i=>i.harness))].sort((a,b)=>{const na=parseFloat(a), nb=parseFloat(b); return (isNaN(na)||isNaN(nb))? a.localeCompare(b): na-nb;});
@@ -200,7 +247,12 @@
       let cur=null; const min = rows.filter(r=>r.unit!=null).reduce((m,r)=>m==null? r.unit: Math.min(m,r.unit), null);
       const minG = rows.filter(r=>r.unitGold!=null).reduce((m,r)=>m==null? r.unitGold: Math.min(m,r.unitGold), null);
       for(const r of rows){
-        if(r.country!==cur){ cur=r.country; const trC=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=8; td.innerHTML=`<strong>${cur}</strong>`; trC.appendChild(td); tb.appendChild(trC); }
+        if(r.country!==cur){
+          cur=r.country;
+          const trC=document.createElement('tr');
+          const td=document.createElement('td'); td.colSpan=8; td.innerHTML=`<strong>${cur}</strong>`;
+          trC.appendChild(td); tb.appendChild(trC);
+        }
         const ratio = (r.unit==null||min==null)? 9 : r.unit/min;
         const ratioG = (r.unitGold==null||minG==null)? 9 : r.unitGold/minG;
         const kind = ratio<=1.05?'excellent': ratio<=1.15?'good': ratio<=1.35?'ok': ratio<=1.6?'warn':'bad';
@@ -210,44 +262,22 @@
           <td>${r.country}</td>
           <td>${r.harness}</td>
           <td>${r.substanceMgTotal} mg</td>
-          <td>${fmtPrice(r.price)}</td>
+          <td class="col-orig">${fmtPrice(r.price)}</td>
           <td>${fmtCZK(r.czk)}</td>
           <td>${r.unit==null? '<span class="muted">–</span>' : `<span class="pill ${kind}">${r.unit} Kč</span>`}</td>
           <td>${r.unitGold==null? '<span class="muted">–</span>' : `<span class="pill ${kindG}">${r.unitGold} Kč</span>`}</td>
-          <td class="muted">${r.note||'–'}</td>`;
+          <td class="col-note muted">${r.note||'–'}</td>`;
         tb.appendChild(tr);
       }
     }
 
-    function buildCSV(rows){
-      const header=['country','harness','substanceMgTotal','priceAmount','priceCurrency','priceCZK','unitPriceCZK','unitPriceGoldCZK','note'];
-      const body = rows.map(r=>[r.country,r.harness,r.substanceMgTotal,r.price.amount,r.price.currency,toCZK(r)||'',r.unit||'',r.unitGold||'',r.note||'']);
-      return [header,...body].map(arr=>arr.map(v=>`"${(v??'').toString().replaceAll('"','""')}"`).join(',')).join('\n');
-    }
-
-    function downloadCSV(){
-      const rows = compute(); const csv = buildCSV(rows);
-      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download='cenik_per_public.csv'; a.click(); URL.revokeObjectURL(url);
-    }
-
-    // INIT
     function init(){
       populateFilters();
       const rows = compute(); renderKPIs(rows); renderTable(rows);
-      document.getElementById('downloadCsv').addEventListener('click', downloadCSV);
       document.getElementById('countryFilter').addEventListener('change', ()=>{ const r=compute(); renderKPIs(r); renderTable(r); });
       document.getElementById('harnessFilter').addEventListener('change', ()=>{ const r=compute(); renderKPIs(r); renderTable(r); });
       document.getElementById('sortBy').addEventListener('change', ()=>{ const r=compute(); renderKPIs(r); renderTable(r); });
       document.getElementById('search').addEventListener('input', ()=>{ const r=compute(); renderKPIs(r); renderTable(r); });
-
-      // Self-testy (read-only varianta)
-      const sample = compute().slice(0,3); const csv=buildCSV(sample);
-      const checks = [];
-      checks.push(csv.includes('\n')? '✔ CSV používá \n' : '✘ CSV neobsahuje \n');
-      checks.push(csv.split('\n')[0].split(',').length===9? '✔ CSV hlavička má 9 sloupců' : '✘ CSV hlavička má špatný počet sloupců');
-      checks.push('✔ Režim: read‑only (bez JSON editoru, bez localStorage)');
-      document.getElementById('selftest').innerHTML = checks.join(' · ');
     }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   </script>
