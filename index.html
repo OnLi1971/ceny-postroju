@@ -43,7 +43,7 @@
     select:focus,input:focus{box-shadow:0 0 0 4px rgba(32,212,212,.25)}
 
     .cards{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin:18px 0}
-    .card{grid-column: span 3;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--card-shadow)}
+    .card{grid-column: span 4;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--card-shadow)}
     .kpi{font-size:28px;font-weight:800}
     .kpi-label{color:var(--muted);font-size:12px;margin-top:6px}
 
@@ -54,19 +54,21 @@
       -webkit-overflow-scrolling: touch;
       margin-top:16px
     }
-    table{width:100%;border-collapse:separate;border-spacing:0;table-layout:auto}
+    table{width:100%;border-collapse:separate;border-spacing:0;min-width:800px}
     thead th{
       position:sticky;top:0;background:#0e152d;border-bottom:1px solid var(--border);
       text-align:left;font-weight:700;padding:12px;font-size:13px;white-space:nowrap
     }
     tbody td{
       padding:12px;border-bottom:1px solid var(--border);font-size:14px;
-      vertical-align:top;word-break:break-word
+      vertical-align:top;white-space:nowrap
     }
     tbody tr:hover{background:#0f1936}
 
-    /* identifikace sloupců kvůli responsivitě */
-    .col-orig{}, .col-note{}
+    /* Sloupce pro responsivitu a zalomení */
+    .col-country{white-space:nowrap; word-break:keep-all} /* nezalamuj jména zemí (Česko, Polsko, ...) */
+    .col-orig{}
+    .col-note{}
 
     .pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
     .pill.excellent{background:rgba(46,204,113,.25);color:#c9ffdf;border:1px solid rgba(46,204,113,.35)}
@@ -101,7 +103,6 @@
   <div class="wrap">
     <header>
       <div class="title">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20h12M8 16l8-8a2.828 2.828 0 114 4l-8 8H8v-4z" stroke="#6aa5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <h1>Ceník per v Evropě</h1>
       </div>
     </header>
@@ -135,14 +136,13 @@
       <div class="card"><div class="kpi" id="kpiCountries">–</div><div class="kpi-label">Zemí v porovnání</div></div>
       <div class="card"><div class="kpi" id="kpiProducts">–</div><div class="kpi-label">Dostupných produktů</div></div>
       <div class="card"><div class="kpi" id="kpiBest">–</div><div class="kpi-label">Nejlepší cena / 1mg</div></div>
-      <div class="card"><div class="kpi" id="kpiSaving">–</div><div class="kpi-label">Potenciální úspora</div></div>
     </div>
 
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Země</th>
+            <th class="col-country">Země</th>
             <th>Pero</th>
             <th>Účinná látka</th>
             <th class="col-orig">Cena orig.</th>
@@ -237,9 +237,9 @@
       const countries = new Set(rows.map(r=>r.country));
       const valids = rows.filter(r=>r.unit!=null).map(r=>r.unit);
       const min = valids.length? Math.min(...valids): null;
-      const max = valids.length? Math.max(...valids): null;
-      kpiCountries.textContent = countries.size; kpiProducts.textContent = rows.filter(r=>r.unit!=null).length;
-      kpiBest.textContent = min!=null? `${min} Kč`:'–'; kpiSaving.textContent = (min!=null&&max!=null)? `${(max-min)} Kč`:'–';
+      document.getElementById('kpiCountries').textContent = countries.size;
+      document.getElementById('kpiProducts').textContent = rows.filter(r=>r.unit!=null).length;
+      document.getElementById('kpiBest').textContent = min!=null? `${min} Kč`:'–';
     }
 
     function renderTable(rows){
@@ -259,7 +259,7 @@
         const kindG= ratioG<=1.05?'excellent': ratioG<=1.15?'good': ratioG<=1.35?'ok': ratioG<=1.6?'warn':'bad';
         const tr=document.createElement('tr');
         tr.innerHTML = `
-          <td>${r.country}</td>
+          <td class="col-country">${r.country}</td>
           <td>${r.harness}</td>
           <td>${r.substanceMgTotal} mg</td>
           <td class="col-orig">${fmtPrice(r.price)}</td>
